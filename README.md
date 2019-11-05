@@ -77,17 +77,18 @@ Odroid HC2, Gehäuse, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 
 4. Vorbereitende Software installieren:
 	1. Vorbereitend muss eine Reihe von Konsolenanwendungen installiert werden. Dies geschieht mit dem folgenden Befehl.
+	
 	```bash
-apt install apache2 mariadb-server libapache2-mod-php7.2 php7.2-gd php7.2-json php7.2-mysql php7.2-curl php7.2-mbstring php7.2-intl php-imagick php7.2-xml php7.2-zip
+	apt install apache2 mariadb-server libapache2-mod-php7.2 php7.2-gd php7.2-json php7.2-mysql php7.2-curl php7.2-mbstring php7.2-intl php-imagick php7.2-xml php7.2-zip
 	```
 	
 	2. Um die Datenbank zu konfigurieren muss sich mit `sudo mysql` im Datenbankserver eingeloggt werden. Anschliessend wird eine neue Datenbank angelegt, ein User angelegt und dem User die entsprechenden Rechte für diese Datenbank gewährt. Wichtig ist das Semikolon (;) am Ende jeden Befehls. Anschliessend werden die Rechte mit `SHOW GRANTS FOR 'ncuser'@localhost;` überprüft.
 	
 	```
-CREATE DATABASE ncdb;
-CREATE USER ncuser IDENTIFIED BY '<<password>>';
-GRANT ALL privileges ON ncdb.* TO ncuser;
-FLUSH PRIVILEGES;
+	CREATE DATABASE ncdb;
+	CREATE USER ncuser IDENTIFIED BY '<<password>>';
+	GRANT ALL privileges ON ncdb.* TO ncuser;
+	FLUSH PRIVILEGES;
 	```
 
 5. Nextcloud installieren: 
@@ -96,41 +97,41 @@ FLUSH PRIVILEGES;
 	3. Weiter müssen die Besitzerrechte an der Nextcloud-Instanz dem Web-Useraccount überschrieben werden. Dies geschieht mit `chown -R www-data:www-data /var/www/nextcloud/`. Das Gleiche wird mit dem Datenverzeichnis getan `chown -R www-data:www-data /data/`
 	4. Dem Webserver muss gesagt werden, an welcher Stelle das Nextcloud installiert wurde. Dazu wird die Konfigurationsdatei unter `/etc/apache2/sites-enabled/000-default.conf` wie folgend angepasst. Dazu wird der Befehl `sudo nano <<filename>>` genutzt.
 	```xml
-<VirtualHost *:80>
-    DocumentRoot /var/www/html/
-    ServerName  your.server.com
-    ServerAdmin your@email.address
+	<VirtualHost *:80>
+	    DocumentRoot /var/www/html/
+	    ServerName  your.server.com
+	    ServerAdmin your@email.address
 
-    <Directory "/var/www/html/">
-        Require all granted
-        AllowOverride All
-        Options FollowSymLinks MultiViews
+	    <Directory "/var/www/html/">
+		Require all granted
+		AllowOverride All
+		Options FollowSymLinks MultiViews
 
-	    <IfModule mod_dav.c>
-            Dav off
-        </IfModule>
+		    <IfModule mod_dav.c>
+		    Dav off
+		</IfModule>
 
-    </Directory>
-</VirtualHost>
+	    </Directory>
+	</VirtualHost>
 	```
 	5. Weiter müssen einige Webserver module installiert werden, und der Webserver anschliessend mit `sudo service apache2 restart` neu gestartet werden.
 	```bash
-sudo a2enmod rewrite
-sudo a2enmod headers
-sudo a2enmod env
-sudo a2enmod dir
-sudo a2enmod mime
-sudo a2enmod ssl
+	sudo a2enmod rewrite
+	sudo a2enmod headers
+	sudo a2enmod env
+	sudo a2enmod dir
+	sudo a2enmod mime
+	sudo a2enmod ssl
 	```
 	6. Im Browser wird die IP Adresse, oder (nachdem im Router definiert) der Gerätename aufgerufen um die Konfiguration durchzuführen. Für den Adminuser `admin` und ein sicheres Passwort verwenden (Empfehlung: Zufallskombination + Klebezettel auf dem Gerät). Dieser Account wird verwendet um die Personenberechtigungen zu steuern. Für den Datenspeicherort `/data` angeben, für die Datenbankverbindung die oben festgelegten Werte verwenden.
 	7. (Das Gerät kommt an dieser Stelle in eine Schleife, bei der es sich dauerhaft versucht einzuloggen. Das ist zwar nicht normal, wird aber im nächsten Schritt behoben)
 	8. Mit `sudo nano /var/www/nextcloud/config/config.php` öffnen wir die config-Datei zum bearbeiten und fügen den hostnamen dem Array von trusted Domains hinzu, so dass dieser Abschnitt später wie folgt aussieht. Speichern und beenden mit STRG+X
 	```php
-'trusted_domains' =>
-array (
-	0 => '192.168.188.XX',
-	1 => '<<hostname>>',
-),
+	'trusted_domains' =>
+	array (
+		0 => '192.168.188.XX',
+		1 => '<<hostname>>',
+	),
 	```
 	9. Anschliessend kann die Nextcloud über `http://<<hostname>>` aufgerufen werden.
 
@@ -149,21 +150,21 @@ array (
 	1. Über die Console im Gerät einloggen mit `ssh <<username>>@<<ipaddress>>`
 	2. Mit `sudo nano /var/www/nextcloud/config/config.php` öffnen wir die config-Datei zum bearbeiten und fügen den hostnamen dem Array von trusted Domains hinzu, so dass dieser Abschnitt später wie folgt aussieht. Speichern und beenden mit STRG+X
 	```php
-'trusted_domains' =>
-array (
-	0 => '<<neue ipaddress>>',
-	1 => '<<hostname>>',
-	2 => 'dyndns url',
-),
+	'trusted_domains' =>
+	array (
+		0 => '<<neue ipaddress>>',
+		1 => '<<hostname>>',
+		2 => 'dyndns url',
+	),
 	```
 	3. Für die SSL Transportverschlüsselung wird der Letsencrypt [4] Certbot [5] verwendet. Dieser wird mit den folgenden Befehlen installiert. Anschliessend wird der Certbot mit `sudo certbot --apache` gestartet. WICHTIG: sowohl das Port-Forwarding, als auch der DynDNS Eintrag müssen eingetragen sein!!
 	```bash
-sudo apt update
-sudo apt install software-properties-common
-sudo add-apt-repository universe
-sudo add-apt-repository ppa:certbot/certbot
-sudo apt update
-sudo apt install certbot python-certbot-apache 
+	sudo apt update
+	sudo apt install software-properties-common
+	sudo add-apt-repository universe
+	sudo add-apt-repository ppa:certbot/certbot
+	sudo apt update
+	sudo apt install certbot python-certbot-apache 
 	```
 3. Die Nextcloud ist jetzt unter der DynDNS URL über das Internet erreichbar
 
