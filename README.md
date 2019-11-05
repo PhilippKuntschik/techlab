@@ -187,7 +187,11 @@ Odroid HC2, Gehäuse, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 
 #### Links:
 [1] https://wiki.odroid.com/odroid-xu4/getting_started/os_installation_guide#installation
+
 [2] https://docs.nextcloud.com/server/17/admin_manual/installation/source_installation.html
+
 [3] https://nextcloud.com/install/#instructions-server
+
 [4] https://letsencrypt.org/
+
 [5] https://certbot.eff.org/lets-encrypt/ubuntubionic-apache
