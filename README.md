@@ -8,7 +8,7 @@ Zeit | Programmpunkt
 18:00 |Das Netzwerk einrichten
 18:30 | Nextcloud installieren
 20:00 | Pizza und Theorie: DynDNS und Port Forwarding
-21:00 | Ende
+21:00 | Ende (Eventuell wirds auch 22:00)
 
 ### Inhalt:
 Odroid HC2, Gehäuse, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
