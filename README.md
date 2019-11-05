@@ -67,32 +67,35 @@ Odroid HC2, Gehäuse, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 	1. Zunächst wird mit `sudo fdisk -l` die Festplatten-ID ermittelt. Anschliessend wird das Formatierungstool aufgerufen mit `sudo fdisk <<ID>>` (beim odroid ist ID immer `/dev/sda`). Die Hilfe zum Tool kann mit `m` (menu) ausgegeben werden. Um die Festplatte zu formatieren wählen wir `n` (new partition) aus. Im Dialog legen wir den primary Partition Type fest (`p`) und bestätigen die Standardwerte der restlichen Eingaben. Mit `w` (write) werden die Änderungen übernommen. Anschliessend kann die Partition mit `sudo fdisk -l` geprüft werden.
 	2. nach der Partitionierung muss anschliessend das Filesystem bereitgestellt werden. Für das EXT4 Filesystem passiert das mit dem Befehl `sudo mkfs.ext4 /dev/sda1` (ID vorhergehend ermittelt).
 	3. Anschliessend wird die Festplatte in den Verzeichnisbaum eingebunden. Mit `sudo mkdir /data` wird ein Verzeichnis auf tiefster Ebene erstellt. Mit `sudo mount /dev/sda1 /data` wird die Festplatte temporär eingebunden. Mit `df -h` kann geprüft werden, ob der mount erfolgreich war.
-	4. Um die Festplatte beim Systemstart automatisch einzubinden, muss dies in der Datei `/etc/fstab` hinterlegt werden. Zunächst wird mit `lsblk -o NAME,UUID` die Festplatten UUID ermittelt. Anschliessend wird die Datei mit `sudo nano /etc/fstab` geöffnet und durch die folgende Zeile ergänzt. Der Editor wird mit STRG+X und Bestätigung der Anfrage, ob die Ursprüngliche Datei überschrieben werden soll, beendet. 
-        ```
-        UUID=<<uuid>> /data ext4 defaults 0	0
-        ```
+	4. Um die Festplatte beim Systemstart automatisch einzubinden, muss dies in der Datei `/etc/fstab` hinterlegt werden. Zunächst wird mit `lsblk -o NAME,UUID` die Festplatten UUID ermittelt. Anschliessend wird die Datei mit `sudo nano /etc/fstab` geöffnet und durch die folgende Zeile ergänzt. Der Editor wird mit STRG+X und Bestätigung der Anfrage, ob die Ursprüngliche Datei überschrieben werden soll, beendet.
+
+	```
+	UUID=<<uuid>> /data ext4 defaults 0	0
+	```
 	
-        5. Mit `sudo reboot` wird das Gerät neu gestartet. Dadurch wird die ssh-Verbindung unterbrochen. Wenn das erneute Einloggen funktioniert, ist alles gut gegangen.
+	5. Mit `sudo reboot` wird das Gerät neu gestartet. Dadurch wird die ssh-Verbindung unterbrochen. Wenn das erneute Einloggen funktioniert, ist alles gut gegangen.
 
 4. Vorbereitende Software installieren:
 	1. Vorbereitend muss eine Reihe von Konsolenanwendungen installiert werden. Dies geschieht mit dem folgenden Befehl.
-```bash
+	```bash
 apt install apache2 mariadb-server libapache2-mod-php7.2 php7.2-gd php7.2-json php7.2-mysql php7.2-curl php7.2-mbstring php7.2-intl php-imagick php7.2-xml php7.2-zip
-```
+	```
+	
 	2. Um die Datenbank zu konfigurieren muss sich mit `sudo mysql` im Datenbankserver eingeloggt werden. Anschliessend wird eine neue Datenbank angelegt, ein User angelegt und dem User die entsprechenden Rechte für diese Datenbank gewährt. Wichtig ist das Semikolon (;) am Ende jeden Befehls. Anschliessend werden die Rechte mit `SHOW GRANTS FOR 'ncuser'@localhost;` überprüft.
-```
+	
+	```
 CREATE DATABASE ncdb;
 CREATE USER ncuser IDENTIFIED BY '<<password>>';
 GRANT ALL privileges ON ncdb.* TO ncuser;
 FLUSH PRIVILEGES;
-```
+	```
 
 5. Nextcloud installieren: 
 	1. Mit `wget https://download.nextcloud.com/server/releases/nextcloud-17.0.0.tar.bz2` [3] werden die Nextcloud-Programmdateien heruntergeladen und anschliessend mit `tar -xjvf nextcloud-17.0.0.tar.bz2` entpackt. Mit `ls` kann das entstandene Verzeichnis dargestellt werden. 
 	2. Das Verzeichnis wird nun mit `sudo mv nextcloud/* /var/www/html` in das Web-Verzeichnis verschoben.
 	3. Weiter müssen die Besitzerrechte an der Nextcloud-Instanz dem Web-Useraccount überschrieben werden. Dies geschieht mit `chown -R www-data:www-data /var/www/nextcloud/`. Das Gleiche wird mit dem Datenverzeichnis getan `chown -R www-data:www-data /data/`
 	4. Dem Webserver muss gesagt werden, an welcher Stelle das Nextcloud installiert wurde. Dazu wird die Konfigurationsdatei unter `/etc/apache2/sites-enabled/000-default.conf` wie folgend angepasst. Dazu wird der Befehl `sudo nano <<filename>>` genutzt.
-```xml
+	```xml
 <VirtualHost *:80>
     DocumentRoot /var/www/html/
     ServerName  your.server.com
@@ -109,26 +112,26 @@ FLUSH PRIVILEGES;
 
     </Directory>
 </VirtualHost>
-```
+	```
 	5. Weiter müssen einige Webserver module installiert werden, und der Webserver anschliessend mit `sudo service apache2 restart` neu gestartet werden.
-```bash
+	```bash
 sudo a2enmod rewrite
 sudo a2enmod headers
 sudo a2enmod env
 sudo a2enmod dir
 sudo a2enmod mime
 sudo a2enmod ssl
-```
+	```
 	6. Im Browser wird die IP Adresse, oder (nachdem im Router definiert) der Gerätename aufgerufen um die Konfiguration durchzuführen. Für den Adminuser `admin` und ein sicheres Passwort verwenden (Empfehlung: Zufallskombination + Klebezettel auf dem Gerät). Dieser Account wird verwendet um die Personenberechtigungen zu steuern. Für den Datenspeicherort `/data` angeben, für die Datenbankverbindung die oben festgelegten Werte verwenden.
 	7. (Das Gerät kommt an dieser Stelle in eine Schleife, bei der es sich dauerhaft versucht einzuloggen. Das ist zwar nicht normal, wird aber im nächsten Schritt behoben)
 	8. Mit `sudo nano /var/www/nextcloud/config/config.php` öffnen wir die config-Datei zum bearbeiten und fügen den hostnamen dem Array von trusted Domains hinzu, so dass dieser Abschnitt später wie folgt aussieht. Speichern und beenden mit STRG+X
-```php
+	```php
 'trusted_domains' =>
 array (
 	0 => '192.168.188.XX',
 	1 => '<<hostname>>',
 ),
-```
+	```
 	9. Anschliessend kann die Nextcloud über `http://<<hostname>>` aufgerufen werden.
 
 6. Nextcloud konfigurieren:
@@ -145,24 +148,23 @@ array (
 3. Am ODROID:
 	1. Über die Console im Gerät einloggen mit `ssh <<username>>@<<ipaddress>>`
 	2. Mit `sudo nano /var/www/nextcloud/config/config.php` öffnen wir die config-Datei zum bearbeiten und fügen den hostnamen dem Array von trusted Domains hinzu, so dass dieser Abschnitt später wie folgt aussieht. Speichern und beenden mit STRG+X
-```php
+	```php
 'trusted_domains' =>
 array (
 	0 => '<<neue ipaddress>>',
 	1 => '<<hostname>>',
 	2 => 'dyndns url',
 ),
-```
+	```
 	3. Für die SSL Transportverschlüsselung wird der Letsencrypt [4] Certbot [5] verwendet. Dieser wird mit den folgenden Befehlen installiert. Anschliessend wird der Certbot mit `sudo certbot --apache` gestartet. WICHTIG: sowohl das Port-Forwarding, als auch der DynDNS Eintrag müssen eingetragen sein!!
-```bash
+	```bash
 sudo apt update
 sudo apt install software-properties-common
 sudo add-apt-repository universe
 sudo add-apt-repository ppa:certbot/certbot
 sudo apt update
 sudo apt install certbot python-certbot-apache 
-```
-
+	```
 3. Die Nextcloud ist jetzt unter der DynDNS URL über das Internet erreichbar
 
 ### Howto:
@@ -182,7 +184,7 @@ sudo apt install certbot python-certbot-apache
 1. Von Zeit zu Zeit sollte das Systme aktualisiert werden (jeden Monat)
 2. Dazu muss sich in das Gerät eingeloggt werden, und mit `sudo apt update` die Softwareliste aktualisiert werden. Anschliessend kann mit `sudo apt upgrade` die aktualisierte Software heruntergeladen werden.
 
-###Links:
+#### Links:
 [1] https://wiki.odroid.com/odroid-xu4/getting_started/os_installation_guide#installation
 [2] https://docs.nextcloud.com/server/17/admin_manual/installation/source_installation.html
 [3] https://nextcloud.com/install/#instructions-server
