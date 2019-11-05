@@ -1,13 +1,14 @@
 # Baue deine eigene Cloud
 
 ### Ablauf:
-
-17:00 - Was ist das für ein Gerät? Was ist Nextcloud?
-17:30 - Den Odroid zusammenbauen
-18:00 - Das Netzwerk einrichten
-18:30 - Nextcloud installieren
-20:00 - Pizza und Theorie: DynDNS und Port Forwarding
-21:00 - Ende
+Zeit | Programmpunkt
+-- | --
+17:00 | Was ist das für ein Gerät? Was ist Nextcloud?
+17:30 | Den Odroid zusammenbauen
+18:00 |Das Netzwerk einrichten
+18:30 | Nextcloud installieren
+20:00 | Pizza und Theorie: DynDNS und Port Forwarding
+21:00 | Ende
 
 ### Inhalt:
 Odroid HC2, Gehäuse, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
@@ -67,10 +68,11 @@ Odroid HC2, Gehäuse, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 	2. nach der Partitionierung muss anschliessend das Filesystem bereitgestellt werden. Für das EXT4 Filesystem passiert das mit dem Befehl `sudo mkfs.ext4 /dev/sda1` (ID vorhergehend ermittelt).
 	3. Anschliessend wird die Festplatte in den Verzeichnisbaum eingebunden. Mit `sudo mkdir /data` wird ein Verzeichnis auf tiefster Ebene erstellt. Mit `sudo mount /dev/sda1 /data` wird die Festplatte temporär eingebunden. Mit `df -h` kann geprüft werden, ob der mount erfolgreich war.
 	4. Um die Festplatte beim Systemstart automatisch einzubinden, muss dies in der Datei `/etc/fstab` hinterlegt werden. Zunächst wird mit `lsblk -o NAME,UUID` die Festplatten UUID ermittelt. Anschliessend wird die Datei mit `sudo nano /etc/fstab` geöffnet und durch die folgende Zeile ergänzt. Der Editor wird mit STRG+X und Bestätigung der Anfrage, ob die Ursprüngliche Datei überschrieben werden soll, beendet. 
-```
-		UUID=<<uuid>> /data ext4 defaults 0	0
-```
-  	5. Mit `sudo reboot` wird das Gerät neu gestartet. Dadurch wird die ssh-Verbindung unterbrochen. Wenn das erneute Einloggen funktioniert, ist alles gut gegangen.
+        ```
+        UUID=<<uuid>> /data ext4 defaults 0	0
+        ```
+	
+        5. Mit `sudo reboot` wird das Gerät neu gestartet. Dadurch wird die ssh-Verbindung unterbrochen. Wenn das erneute Einloggen funktioniert, ist alles gut gegangen.
 
 4. Vorbereitende Software installieren:
 	1. Vorbereitend muss eine Reihe von Konsolenanwendungen installiert werden. Dies geschieht mit dem folgenden Befehl.
