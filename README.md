@@ -79,7 +79,7 @@ Odroid HC2, Gehäuse, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 	1. Vorbereitend muss eine Reihe von Konsolenanwendungen installiert werden. Dies geschieht mit dem folgenden Befehl.
 	
 	```bash
-	apt install apache2 mariadb-server libapache2-mod-php7.2 php7.2-gd php7.2-json php7.2-mysql php7.2-curl php7.2-mbstring php7.2-intl php-imagick php7.2-xml php7.2-zip
+	sudo apt install apache2 mariadb-server libapache2-mod-php7.2 php7.2-gd php7.2-json php7.2-mysql php7.2-curl php7.2-mbstring php7.2-intl php-imagick php7.2-xml php7.2-zip
 	```
 	
 	2. Um die Datenbank zu konfigurieren muss sich mit `sudo mysql` im Datenbankserver eingeloggt werden. Anschliessend wird eine neue Datenbank angelegt, ein User angelegt und dem User die entsprechenden Rechte für diese Datenbank gewährt. Wichtig ist das Semikolon (;) am Ende jeden Befehls. Anschliessend werden die Rechte mit `SHOW GRANTS FOR 'ncuser'@localhost;` überprüft.
@@ -94,7 +94,7 @@ Odroid HC2, Gehäuse, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 5. Nextcloud installieren: 
 	1. Mit `wget https://download.nextcloud.com/server/releases/nextcloud-17.0.0.tar.bz2` [3] werden die Nextcloud-Programmdateien heruntergeladen und anschliessend mit `tar -xjvf nextcloud-17.0.0.tar.bz2` entpackt. Mit `ls` kann das entstandene Verzeichnis dargestellt werden. 
 	2. Das Verzeichnis wird nun mit `sudo mv nextcloud/* /var/www/html` in das Web-Verzeichnis verschoben.
-	3. Weiter müssen die Besitzerrechte an der Nextcloud-Instanz dem Web-Useraccount überschrieben werden. Dies geschieht mit `chown -R www-data:www-data /var/www/nextcloud/`. Das Gleiche wird mit dem Datenverzeichnis getan `chown -R www-data:www-data /data/`
+	3. Weiter müssen die Besitzerrechte an der Nextcloud-Instanz dem Web-Useraccount überschrieben werden. Dies geschieht mit `chown -R www-data:www-data /var/www/html/`. Das Gleiche wird mit dem Datenverzeichnis getan `chown -R www-data:www-data /data/`
 	4. Dem Webserver muss gesagt werden, an welcher Stelle das Nextcloud installiert wurde. Dazu wird die Konfigurationsdatei unter `/etc/apache2/sites-enabled/000-default.conf` wie folgend angepasst. Dazu wird der Befehl `sudo nano <<filename>>` genutzt.
 	```xml
 	<VirtualHost *:80>
