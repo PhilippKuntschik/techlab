@@ -148,7 +148,7 @@ Odroid HC2, Gehäuse, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 
 3. Am ODROID:
 	1. Über die Console im Gerät einloggen mit `ssh <<username>>@<<ipaddress>>`
-	2. Mit `sudo nano /var/www/nextcloud/config/config.php` öffnen wir die config-Datei zum bearbeiten und fügen den hostnamen dem Array von trusted Domains hinzu, so dass dieser Abschnitt später wie folgt aussieht. Speichern und beenden mit STRG+X
+	2. Mit `sudo nano /var/www/html/config/config.php` öffnen wir die config-Datei zum bearbeiten und fügen den hostnamen dem Array von trusted Domains hinzu, so dass dieser Abschnitt später wie folgt aussieht. Speichern und beenden mit STRG+X
 	```php
 	'trusted_domains' =>
 	array (
