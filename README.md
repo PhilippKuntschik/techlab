@@ -154,7 +154,7 @@ Odroid HC2, Gehäuse, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 	array (
 		0 => '<<neue ipaddress>>',
 		1 => '<<hostname>>',
-		2 => 'dyndns url',
+		2 => '<<dyndns url>>',
 	),
 	```
 	3. Für die SSL Transportverschlüsselung wird der Letsencrypt [4] Certbot [5] verwendet. Dieser wird mit den folgenden Befehlen installiert. Anschliessend wird der Certbot mit `sudo certbot --apache` gestartet. WICHTIG: sowohl das Port-Forwarding, als auch der DynDNS Eintrag müssen eingetragen sein!!
