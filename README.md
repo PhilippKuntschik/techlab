@@ -171,7 +171,7 @@ Odroid HC4, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 	touch /.ssl/<<dyndns url>>/key.pem
 	touch /.ssl/<<dyndns url>>/fullchain.pem
 	
-	acme.sh --install-cert -d <<dyndns url>> --cert-file /.ssl/<<dyndns url>>/cert.pem --key-file /.ssl/<<dyndns url>>/key.pem --fullchain-file /.ssl/<<dyndns url>>/fullchain.pem --reloadcmd "service apache2 force-reload"
+	~/.acme/acme.sh --install-cert -d <<dyndns url>> --cert-file /.ssl/<<dyndns url>>/cert.pem --key-file /.ssl/<<dyndns url>>/key.pem --fullchain-file /.ssl/<<dyndns url>>/fullchain.pem --reloadcmd "service apache2 force-reload"
 	
 	a2enmod ssl
 	a2ensite default-ssl
