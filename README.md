@@ -165,13 +165,49 @@ Odroid HC4, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 	
 	~/.acme/acme.sh --issue -d <<dyndns doman>> -w /var/www/html
 	
+	mkdir -p /.ssl/<<dyndns url>>
+	chmod -R g+w /.ssl/<<dyndns url>>
+	touch /.ssl/<<dyndns url>>/cert.pem
+	touch /.ssl/<<dyndns url>>/key.pem
+	touch /.ssl/<<dyndns url>>/fullchain.pem
+	
+	acme.sh --install-cert -d <<dyndns url>> --cert-file /.ssl/<<dyndns url>>/cert.pem --key-file /.ssl/<<dyndns url>>/key.pem --fullchain-file /.ssl/<<dyndns url>>/fullchain.pem --reloadcmd "service apache2 force-reload"
+	
 	a2enmod ssl
 	a2ensite default-ssl
-	service apache2 reload
-	
 	
 	```
-3. Die Nextcloud ist jetzt unter der DynDNS URL über das Internet erreichbar
+	
+	4. Anpassen der nextcloud.config mit `sudo nano /etc/apache2/sites-enabled/nexctloud.config`
+	```bash
+	<VirtualHost *:80>
+	  ServerName <<dyndns url>>.ch
+	  Redirect "/" "https://<<dyndns url>>.ch/"
+	</VirtualHost>
+	
+	<VirtualHost *:443>
+	  DocumentRoot /var/www/html/
+	  ServerName  <<dyndns url>>.ch
+	  
+	  SSLEngine on
+	  SSLCertificateFile /.ssl/<<dyndns url>>/cert.pem
+	  SSLCertificateKeyFile /.ssl/<<dyndns url>>/key.pem
+	  SSLCertificateChainFile /.ssl/<<dyndns url>>/fullchain.pem
+	  
+	  <Directory /var/www/html/>
+	    Require all granted
+	    AllowOverride All
+	    Options FollowSymLinks MultiViews
+	    
+	    <IfModule mod_dav.c>
+	      Dav off
+	    </IfModule>
+	  </Directory>
+	</VirtualHost>
+	```
+	5. Apache neu starten via `sudo service apache2 restart`
+	
+4. Die Nextcloud ist jetzt unter der DynDNS URL über das Internet erreichbar
 
 ### Howto:
 
