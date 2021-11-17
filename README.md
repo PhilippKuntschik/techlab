@@ -59,7 +59,7 @@ Odroid HC4, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 	1. Auf das Gerät wird mittels `ssh` zugegriffen. Das ist möglich mit dem Programm [Putty (Download [3])](https://www.chiark.greenend.org.uk/~sgtatham/putty/), über den Windows 10 Linux Subsystem [[4]](https://docs.microsoft.com/de-ch/windows/wsl/install), oder über das Terminal bei Mac und Ubuntu. Der Befehl zum verbinden lautet `ssh root@<<ip-addresse>>`. Die IP wurde in Schritt 1 ermittelt. Das Passwort zu diesem Zeitpunkt lautet `odroid`.
 	2. Als erstes sollte das System upgedated werden `apt update` lädt dabei die aktuellsten Software Listen herunter. Anschliessend wird `apt upgrade` ausgeführt um das System zu aktualisieren.
 	3. Um das System vor ungewünschtem Eindringen zu schützen muss das root geändert werden. Mit dem Befehl `passwd` wird die Änderung des Passworts des eingeloggten Users eingeleitet. Das Passwort sollte möglichst hart sein, und wird nur selten verwendet. (Empfehlung: Zufallskombination + Klebezettel auf dem Gerät). 
-	4. Zur sichereren Bedienung wird ein weiterer Benutzer angelegt. Dies geschieht mit dem Befehl `adduser <<username>>`. Dieser Nutzer wird unser Standartnutzer sein. Bei Linux/Unix Systemen wird empfohlen auf verschiedenen Geräten den gleichen Nutzernamen zu wählen. Mit `usermod -aG sudo <<username>>` wird der Nutzer der sudo Gruppe hinzugefügt, womit die Ausführung mit privilegierten Rechten möglich wird. Zusätzlich müssen wir 
+	4. Zur sichereren Bedienung wird ein weiterer Benutzer angelegt. Dies geschieht mit dem Befehl `adduser <<username>>`. Dieser Nutzer wird unser Standartnutzer sein. Bei Linux/Unix Systemen wird empfohlen auf verschiedenen Geräten den gleichen Nutzernamen zu wählen. Mit `usermod -aG sudo,www-data <<username>>` wird der Nutzer der sudo Gruppe hinzugefügt, womit die Ausführung mit privilegierten Rechten möglich wird. Zusätzlich müssen wir 
 	5. Um das Gerät (in unserem Setting) eindeutig identifizierbar zu machen wird mit `hostnamectl set-hostname <<name>>` der Gerätename geändert.
 	6. Die Verbindung mit dem Gerät wird mit `exit` getrennt. Anschliessend verbinden wir uns wieder mit unserem neu angelegten Nutzer: `ssh <<username>>@<<ip-address>>`
 
@@ -114,7 +114,7 @@ Odroid HC4, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 	    </Directory>
 	</VirtualHost>
 	```
-	5. Die Konfiguration wird anschliessend mit dem Befehl `a2ensite nextcloud.conf` aktiviert.
+	5. Die vorhandene Konfigurationsdatei wird mit `sudo rm /etc/apache2/sites-enabled/000-default.conf` gelöscht.
 	6. Weiter müssen einige Webserver module installiert werden, und der Webserver anschliessend mit `sudo service apache2 restart` neu gestartet werden.
 	```bash
 	sudo a2enmod rewrite
@@ -125,15 +125,7 @@ Odroid HC4, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 	sudo a2enmod ssl
 	```
 	7. Im Browser wird die IP Adresse, oder (nachdem im Router definiert) der Gerätename aufgerufen um die Konfiguration durchzuführen. Für den Adminuser `admin` und ein sicheres Passwort verwenden (Empfehlung: Zufallskombination + Klebezettel auf dem Gerät). Dieser Account wird verwendet um die Personenberechtigungen zu steuern. Für den Datenspeicherort `/data` angeben, für die Datenbankverbindung die oben festgelegten Werte verwenden.
-	8. Auf der Kommandozeile mit `sudo nano /var/www/nextcloud/config/config.php` öffnen wir die config-Datei zum bearbeiten und fügen den hostnamen dem Array von trusted Domains hinzu, so dass dieser Abschnitt später wie folgt aussieht. Speichern und beenden mit STRG+X
-	```php
-	'trusted_domains' =>
-	array (
-		0 => '192.168.188.XX',
-		1 => '<<hostname>>',
-	),
-	```
-	10. Anschliessend kann die Nextcloud über `http://<<hostname>>` aufgerufen werden.
+	8. Anschliessend kann die Nextcloud über `http://<<hostname>>` aufgerufen werden.
 
 6. Nextcloud konfigurieren:
 	
@@ -160,52 +152,66 @@ Odroid HC4, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 	3. Für die SSL Transportverschlüsselung wird [Letsencrypt [7]](https://letsencrypt.org/) und das [acme.sh [8]](https://github.com/acmesh-official/acme.sh) script verwendet. Dieses wird mit den folgenden Befehlen installiert. Die Email-Adresse wird verwendet, um vor einem ablaufenden Zertifikat zu warnen.
 	```bash
 	wget -O -  https://get.acme.sh | sh -s email=<<my@example.com>>
-	mkdir /var/www/html/.well-known
-	chmod -R g+w /var/www/html/.well-known
 	
+	sudo mkdir /var/www/html/.well-known
+	sudo chown www-data:www-data /var/www/html/.well-known
+	sudo chmod -R g+w /var/www/html/.well-known
+	
+	~/.acme/acme.sh --set-default-ca --server letsencrypt
 	~/.acme/acme.sh --issue -d <<dyndns doman>> -w /var/www/html
 	
-	mkdir -p /.ssl/<<dyndns url>>
-	chmod -R g+w /.ssl/<<dyndns url>>
-	touch /.ssl/<<dyndns url>>/cert.pem
-	touch /.ssl/<<dyndns url>>/key.pem
-	touch /.ssl/<<dyndns url>>/fullchain.pem
+	sudo mkdir /etc/ssl/<<dyndns doman>>
+	sudo chown www-data:www-data /etc/ssl/<<dyndns doman>>
+	sudo chmod -R g+w /etc/ssl/<<dyndns doman>>
 	
-	~/.acme/acme.sh --install-cert -d <<dyndns url>> --cert-file /.ssl/<<dyndns url>>/cert.pem --key-file /.ssl/<<dyndns url>>/key.pem --fullchain-file /.ssl/<<dyndns url>>/fullchain.pem --reloadcmd "service apache2 force-reload"
+	acme.sh --install-cert -d example.com --cert-file /etc/ssl/<<dyndns doman>>/cert.pem --key-file /etc/ssl/<<dyndns doman>>/key.pem --fullchain-file /etc/ssl/<<dyndns doman>>/fullchain.pem --reloadcmd "service apache2 force-reload"
 	
-	a2enmod ssl
-	a2ensite default-ssl
 	
+		acme.sh --install-cert -d super.internet-box.ch --cert-file /etc/ssl/super.internet-box.ch/cert.pem --key-file /etc/ssl/super.internet-box.ch/key.pem --fullchain-file /etc/ssl/super.internet-box.ch/fullchain.pem --reloadcmd "service apache2 force-reload"
 	```
 	
 	4. Anpassen der nextcloud.config mit `sudo nano /etc/apache2/sites-enabled/nexctloud.config`
-	```bash
+	```bash                                                                                                        
 	<VirtualHost *:80>
-	  ServerName <<dyndns url>>.ch
-	  Redirect "/" "https://<<dyndns url>>.ch/"
+	    RewriteEngine On
+	    RewriteCond %{REQUEST_URI} !^/\.well\-known/acme\-challenge/
+	    RewriteCond %{HTTPS} off
+	    RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 	</VirtualHost>
-	
+
 	<VirtualHost *:443>
-	  DocumentRoot /var/www/html/
-	  ServerName  <<dyndns url>>.ch
-	  
-	  SSLEngine on
-	  SSLCertificateFile /.ssl/<<dyndns url>>/cert.pem
-	  SSLCertificateKeyFile /.ssl/<<dyndns url>>/key.pem
-	  SSLCertificateChainFile /.ssl/<<dyndns url>>/fullchain.pem
-	  
-	  <Directory /var/www/html/>
-	    Require all granted
-	    AllowOverride All
-	    Options FollowSymLinks MultiViews
-	    
-	    <IfModule mod_dav.c>
-	      Dav off
-	    </IfModule>
-	  </Directory>
+	    # SSL Zertifikat
+	    SSLEngine on
+
+	    SSLCertificateFile /etc/ssl/<<dyndns doman>>/cert.pem
+	    SSLCertificateKeyFile /etc/ssl/<<dyndns doman>>/key.pem
+	    SSLCertificateChainFile /etc/ssl/<<dyndns doman>>/fullchain.pem
+
+	    DocumentRoot /var/www/html/
+	    ServerName  <<dyndns doman>>
+	    ServerAdmin your@email.address
+
+	    <Directory "/var/www/html/">
+		Require all granted
+		AllowOverride All
+		Options FollowSymLinks MultiViews
+
+		    <IfModule mod_dav.c>
+		    Dav off
+		</IfModule>
+
+	    </Directory>
 	</VirtualHost>
 	```
 	5. Apache neu starten via `sudo service apache2 restart`
+	6. Anpassen der trusted domains im File `/var/www/html/config/config.php` mit `sudo nano`. Das Array muss wie folgt erweitert werden:
+	```php
+	  array (
+             0 => 'nextcloud',
+	     1 => '<<dyndns-url>>'
+          ),
+
+	```
 	
 4. Die Nextcloud ist jetzt unter der DynDNS URL über das Internet erreichbar
 
@@ -224,7 +230,7 @@ Odroid HC4, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 
 #### System aktualisieren:
 1. Von Zeit zu Zeit sollte das Systme aktualisiert werden (jeden Monat)
-2. Dazu muss sich in das Gerät eingeloggt werden, und mit `sudo apt update` die Softwareliste aktualisiert werden. Anschliessend kann mit `sudo apt upgrade` die aktualisierte Software heruntergeladen werden.
+2. Dazu muss sich in das Gerät eingeloggt werden (`ssh`), und mit `sudo apt update` die Softwareliste aktualisiert werden. Anschliessend kann mit `sudo apt upgrade` die aktualisierte Software heruntergeladen werden.
 
 #### Links:
 [1] https://wiki.odroid.com/odroid-hc4/getting_started/os_installation_guide
