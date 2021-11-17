@@ -165,9 +165,6 @@ Odroid HC4, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 	sudo chmod -R g+w /etc/ssl/<<dyndns doman>>
 	
 	acme.sh --install-cert -d example.com --cert-file /etc/ssl/<<dyndns doman>>/cert.pem --key-file /etc/ssl/<<dyndns doman>>/key.pem --fullchain-file /etc/ssl/<<dyndns doman>>/fullchain.pem --reloadcmd "service apache2 force-reload"
-	
-	
-		acme.sh --install-cert -d super.internet-box.ch --cert-file /etc/ssl/super.internet-box.ch/cert.pem --key-file /etc/ssl/super.internet-box.ch/key.pem --fullchain-file /etc/ssl/super.internet-box.ch/fullchain.pem --reloadcmd "service apache2 force-reload"
 	```
 	
 	4. Anpassen der nextcloud.config mit `sudo nano /etc/apache2/sites-enabled/nexctloud.config`
