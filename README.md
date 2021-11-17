@@ -212,6 +212,16 @@ Odroid HC4, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 	
 4. Die Nextcloud ist jetzt unter der DynDNS URL über das Internet erreichbar
 
+### Weitere mögliche Schritte:
+
+##### Eine Desktopoberfläche installieren:
+
+Wir haben das Gerät headless (= ohne Desktop Umgebung) installiert. Generell gibt es Zahlreiche Desktopumgebungen, welche auf dem Gerät lauffähig sind. Ein Beispiel für die Installation der XFCE Umgebung:
+
+```bash
+sudo apt install xfce4 xfce4-goodies xorg dbus-x11 x11-xserver-utils
+```
+
 ### Howto:
 
 ##### User anlegen:
