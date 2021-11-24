@@ -212,6 +212,37 @@ Odroid HC4, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 	
 4. Die Nextcloud ist jetzt unter der DynDNS URL über das Internet erreichbar
 
+### Das Backup einrichten
+
+In unserem Fall wird das Backup auf einer zweiten HD im gleichen System erstellt. Noch sicherer wäre jedoch ein automatisches Backup auf ein anderes Computersystem. Für das Backup 1) binden wir die zusätzliche Festplatte ein 2) Erstellen die Version 0 und 3) konfigurieren den wiederkehrenden Zyklus.
+
+1. Analog zur Hauptpartition wird die Festplatte eingerichtet (siehe oben):
+	1. Festplatte ermitteln: `sudo fdisk -l`
+	2. Formatierungstool ausführen `sudo fdisk <<Device-ID>>`, neue Partition erstellen `n`, Primärpartition bestätigen `p` und weiter bestätigen um die volle Kapazität für die Partition zu verwenden.
+	3. Filesystem erstellen `sudo mkfs.ext4 <<Partition-ID>>
+	4. Backupordner für mount vorbereiten: `sudo mkdir /backup` und anschliessend mounten `sudo mount <<Partition-ID>> /backup`
+	5. Festplatten UUID ermitteln: 
+	6. Festplatte bei Systemstart automatisch einbinden: `sudo nano /etc/fstab` und anschliessen folgende Zeile hinzufügen:
+	```bash
+	UUID=<<uuid>> /backup ext4 defaults,ro 0	0
+	```
+2. Backup mit Rsync:
+	1. Mit `sudo nano daily-backup.sh` ein neues script anlegen mit folgendem Inhalt:
+	```bash
+	mount -o remount,rw /backup
+	rsync -ax --delete /data /backup/
+	mount -o remount,ro /backup
+
+	echo `date` >> /data/<<username>>/files/backup.txt
+	```
+	2. Rechte anpassen
+	chmod 700 daily-backup.sh
+	3. nach /root/ verschieben mit `sudo mv daily-backup.sh /root`
+	4. Mit `crontab -e` die automatische Skriptverwaltung öffen und eine neue Zeile anlegen
+	```bash
+	0 23 * * * /root/daily-backup.sh
+	```
+
 ### Weitere mögliche Schritte:
 
 ##### Eine Desktopoberfläche installieren:
@@ -221,6 +252,7 @@ Wir haben das Gerät headless (= ohne Desktop Umgebung) installiert. Generell gi
 ```bash
 sudo apt install xfce4 xfce4-goodies xorg dbus-x11 x11-xserver-utils
 ```
+Anschliessend muss das Gerät mit `sudo reboot` neu gestartet werden.
 
 ### Howto:
 
@@ -255,3 +287,5 @@ sudo apt install xfce4 xfce4-goodies xorg dbus-x11 x11-xserver-utils
 [7] https://letsencrypt.org/
 
 [8] https://github.com/acmesh-official/acme.sh
+
+[9] https://help.ubuntu.com/community/BackupYourSystem
