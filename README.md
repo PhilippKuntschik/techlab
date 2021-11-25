@@ -219,7 +219,7 @@ In unserem Fall wird das Backup auf einer zweiten HD im gleichen System erstellt
 1. Analog zur Hauptpartition wird die Festplatte eingerichtet (siehe oben):
 	1. Festplatte ermitteln: `sudo fdisk -l`
 	2. Formatierungstool ausführen `sudo fdisk <<Device-ID>>`, neue Partition erstellen `n`, Primärpartition bestätigen `p` und weiter bestätigen um die volle Kapazität für die Partition zu verwenden.
-	3. Filesystem erstellen `sudo mkfs.ext4 <<Partition-ID>>
+	3. Filesystem erstellen `sudo mkfs.ext4 <<Partition-ID>>`
 	4. Backupordner für mount vorbereiten: `sudo mkdir /backup` und anschliessend mounten `sudo mount <<Partition-ID>> /backup`
 	5. Festplatten UUID ermitteln: 
 	6. Festplatte bei Systemstart automatisch einbinden: `sudo nano /etc/fstab` und anschliessen folgende Zeile hinzufügen:
@@ -236,9 +236,11 @@ In unserem Fall wird das Backup auf einer zweiten HD im gleichen System erstellt
 	mount -o remount,ro /backup
 
 	echo `date` >> /data/<<username>>/files/backup.txt
+	sudo -u www-data php /var/www/html/occ files:scan --path="/<<username>>/files/backup.txt"
+
 	```
 	
-	2. Die Besitzerrechte des Files werden an unseren Root-User übergeben mit `chown root:root daily-backup.sh`. Anschliessend werden die Zugriffsrechte auf den Root-User beschränkt mit `chmod 700 daily-backup.sh`
+	2. Die Besitzerrechte des Files werden an unseren Root-User übergeben mit `sudo chown root:root daily-backup.sh`. Anschliessend werden die Zugriffsrechte auf den Root-User beschränkt mit `sudo chmod 700 daily-backup.sh`
 	3. Mit `sudo mv daily-backup.sh /root` verschieben wir das File anschliessend in das Root-Homedirectory, damit es uns nicht weiter im Weg umgeht.
 	4. Linux-Systeme nutzen ein System namens Cron [11] zur verwaltung wiederkehrender Prozesse. `crontab` bildet dabei das verwaltungssystem. Diese kann mit `sudo crontab -e` geöffnet und editiert werden. Wir fügen die folgende Zeile hinzu. _0 23_ bedeutet dabei, dass der Prozess um 23:00 erfolgen soll. Die drei Sterne repräsentieren die Einheiten Tag, Monat und Jahr.
 	```bash
