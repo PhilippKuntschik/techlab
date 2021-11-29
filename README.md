@@ -140,16 +140,7 @@ Odroid HC4, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 
 3. Am ODROID:
 	1. Über die Console im Gerät einloggen mit `ssh <<username>>@<<ipaddress>>`
-	2. Mit `sudo nano /var/www/html/config/config.php` öffnen wir die config-Datei zum bearbeiten und fügen den hostnamen dem Array von trusted Domains hinzu, so dass dieser Abschnitt später wie folgt aussieht. Speichern und beenden mit STRG+X
-	```php
-	'trusted_domains' =>
-	array (
-		0 => '<<neue ipaddress>>',
-		1 => '<<hostname>>',
-		2 => '<<dyndns url>>',
-	),
-	```
-	3. Für die SSL Transportverschlüsselung wird [Letsencrypt [7]](https://letsencrypt.org/) und das [acme.sh [8]](https://github.com/acmesh-official/acme.sh) script verwendet. Dieses wird mit den folgenden Befehlen installiert. Die Email-Adresse wird verwendet, um vor einem ablaufenden Zertifikat zu warnen.
+	2. Für die SSL Transportverschlüsselung wird [Letsencrypt [7]](https://letsencrypt.org/) und das [acme.sh [8]](https://github.com/acmesh-official/acme.sh) script verwendet. Dieses wird mit den folgenden Befehlen installiert. Die Email-Adresse wird verwendet, um vor einem ablaufenden Zertifikat zu warnen.
 	```bash
 	wget -O -  https://get.acme.sh | sh -s email=<<my@example.com>>
 	
@@ -158,16 +149,16 @@ Odroid HC4, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 	sudo chmod -R g+w /var/www/html/.well-known
 	
 	~/.acme/acme.sh --set-default-ca --server letsencrypt
-	~/.acme/acme.sh --issue -d <<dyndns doman>> -w /var/www/html
+	~/.acme/acme.sh --issue -d <<dyndns domain>> -w /var/www/html
 	
-	sudo mkdir /etc/ssl/<<dyndns doman>>
-	sudo chown www-data:www-data /etc/ssl/<<dyndns doman>>
-	sudo chmod -R g+w /etc/ssl/<<dyndns doman>>
+	sudo mkdir /etc/ssl/<<dyndns domain>>
+	sudo chown www-data:www-data /etc/ssl/<<dyndns domain>>
+	sudo chmod -R g+w /etc/ssl/<<dyndns domain>>
 	
-	acme.sh --install-cert -d example.com --cert-file /etc/ssl/<<dyndns doman>>/cert.pem --key-file /etc/ssl/<<dyndns doman>>/key.pem --fullchain-file /etc/ssl/<<dyndns doman>>/fullchain.pem --reloadcmd "service apache2 force-reload"
+	acme.sh --install-cert -d <<dyndns domain>> --cert-file /etc/ssl/<<dyndns domain>>/cert.pem --key-file /etc/ssl/<<dyndns domain>>/key.pem --fullchain-file /etc/ssl/<<dyndns domain>>/fullchain.pem --reloadcmd "service apache2 force-reload"
 	```
 	
-	4. Anpassen der nextcloud.config mit `sudo nano /etc/apache2/sites-enabled/nexctloud.config`
+	3. Anpassen der nextcloud.config mit `sudo nano /etc/apache2/sites-enabled/nexctloud.conf`
 	```bash                                                                                                        
 	<VirtualHost *:80>
 	    RewriteEngine On
@@ -180,12 +171,12 @@ Odroid HC4, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 	    # SSL Zertifikat
 	    SSLEngine on
 
-	    SSLCertificateFile /etc/ssl/<<dyndns doman>>/cert.pem
-	    SSLCertificateKeyFile /etc/ssl/<<dyndns doman>>/key.pem
-	    SSLCertificateChainFile /etc/ssl/<<dyndns doman>>/fullchain.pem
+	    SSLCertificateFile /etc/ssl/<<dyndns domain>>/cert.pem
+	    SSLCertificateKeyFile /etc/ssl/<<dyndns domain>>/key.pem
+	    SSLCertificateChainFile /etc/ssl/<<dyndns domain>>/fullchain.pem
 
 	    DocumentRoot /var/www/html/
-	    ServerName  <<dyndns doman>>
+	    ServerName  <<dyndns domain>>
 	    ServerAdmin your@email.address
 
 	    <Directory "/var/www/html/">
@@ -200,12 +191,12 @@ Odroid HC4, Stromkabel + Anschluss EU, LAN Kabel, SD Card, Festplatte
 	    </Directory>
 	</VirtualHost>
 	```
-	5. Apache neu starten via `sudo service apache2 restart`
-	6. Anpassen der trusted domains im File `/var/www/html/config/config.php` mit `sudo nano`. Das Array muss wie folgt erweitert werden:
+	4. Apache neu starten via `sudo service apache2 restart`
+	5. Anpassen der trusted domains im File `/var/www/html/config/config.php` mit `sudo nano`. Das Array muss wie folgt erweitert werden:
 	```php
 	  array (
              0 => 'nextcloud',
-	     1 => '<<dyndns-url>>'
+	     1 => '<<dyndns-domain>>'
           ),
 
 	```
